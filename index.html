@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F/A-18 Cockpit Simulator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="cockpit-container">
+        <!-- HUD OVERLAY (TOP) -->
+        <div class="hud-overlay">
+            <div class="hud-reticle"></div>
+            
+            <div class="hud-left">
+                <div class="hud-speed">
+                    <span class="label">SPEED</span>
+                    <div class="value" id="hud-speed">280</div>
+                    <span class="unit">KNOTS</span>
+                </div>
+                <div class="hud-altitude">
+                    <span class="label">ALT</span>
+                    <div class="value" id="hud-altitude">15000</div>
+                    <span class="unit">FT</span>
+                </div>
+            </div>
+
+            <div class="hud-right">
+                <div class="hud-heading">
+                    <span class="label">HDG</span>
+                    <div class="value" id="hud-heading">045</div>
+                    <span class="unit">°</span>
+                </div>
+                <div class="hud-gforce">
+                    <span class="label">G</span>
+                    <div class="value" id="hud-gforce">1.0</div>
+                </div>
+            </div>
+
+            <!-- WARNING LIGHTS INTEGRATED INTO HUD -->
+            <div class="hud-warnings">
+                <div class="warning-light" id="warn-stall">⚠ STALL</div>
+                <div class="warning-light" id="warn-pullup">⚠ PULL UP</div>
+                <div class="warning-light" id="warn-overg">⚠ OVER G</div>
+                <div class="warning-light" id="warn-engine">⚠ ENGINE</div>
+                <div class="warning-light critical" id="warn-eject">🔴 EJECT</div>
+            </div>
+        </div>
+
+        <!-- MAIN COCKPIT LAYOUT -->
+        <div class="cockpit-main">
+            <!-- LEFT PANEL -->
+            <div class="panel left-panel">
+                <div class="panel-section">
+                    <h3>ENGINE CONTROLS</h3>
+                    <div class="control-group">
+                        <label>BATTERY</label>
+                        <button class="toggle-btn" id="battery-btn" data-state="OFF">OFF</button>
+                    </div>
+                    <div class="control-group">
+                        <label>APU</label>
+                        <button class="toggle-btn" id="apu-btn" data-state="OFF">OFF</button>
+                    </div>
+                    <div class="control-group">
+                        <label>ENGINE CRANK</label>
+                        <button class="toggle-btn" id="engine-crank-btn" data-state="OFF">OFF</button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>THROTTLE CONTROL</h3>
+                    <div class="throttle-container">
+                        <input type="range" id="throttle-slider" min="0" max="100" value="0" class="throttle-slider">
+                        <div class="throttle-label">
+                            <span id="throttle-percent">0%</span>
+                            <span id="throttle-mode">IDLE</span>
+                        </div>
+                    </div>
+                    <div class="gauge">
+                        <label>Engine RPM</label>
+                        <div id="rpm-gauge" class="gauge-bar"></div>
+                        <span id="rpm-value">0%</span>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>FLIGHT SYSTEMS</h3>
+                    <div class="control-group">
+                        <label>AVIONICS</label>
+                        <button class="toggle-btn" id="avionics-btn" data-state="OFF">OFF</button>
+                    </div>
+                    <div class="control-group">
+                        <label>AUTOPILOT</label>
+                        <button class="toggle-btn" id="autopilot-btn" data-state="OFF">OFF</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CENTER DISPLAYS -->
+            <div class="center-displays">
+                <!-- LEFT MFD (RADAR/RWR) -->
+                <div class="mfd left-mfd">
+                    <div class="mfd-header">
+                        <h3>RADAR</h3>
+                        <div class="mode-selector">
+                            <button class="mode-btn active" data-mode="search">SEARCH</button>
+                            <button class="mode-btn" data-mode="track">TRACK</button>
+                            <button class="mode-btn" data-mode="lock">LOCK</button>
+                        </div>
+                    </div>
+                    <canvas id="radar-canvas" width="300" height="300"></canvas>
+                    <div class="mfd-controls">
+                        <label>RANGE (NM):</label>
+                        <input type="range" id="radar-range" min="10" max="200" value="50" class="control-slider">
+                        <span id="radar-range-display">50 NM</span>
+                    </div>
+                </div>
+
+                <!-- RIGHT MFD (ENGINE/SYSTEMS) -->
+                <div class="mfd right-mfd">
+                    <div class="mfd-header">
+                        <h3>SYSTEMS</h3>
+                        <div class="mode-selector">
+                            <button class="mode-btn active" data-mode="engine">ENGINE</button>
+                            <button class="mode-btn" data-mode="weapons">WEAPONS</button>
+                            <button class="mode-btn" data-mode="nav">NAV</button>
+                        </div>
+                    </div>
+                    <div class="mfd-content" id="mfd-engine">
+                        <div class="system-gauge">
+                            <label>L ENGINE TEMP</label>
+                            <div class="gauge-bar">
+                                <div id="l-eng-temp-bar" class="gauge-fill"></div>
+                            </div>
+                            <span id="l-eng-temp">68°C</span>
+                        </div>
+                        <div class="system-gauge">
+                            <label>R ENGINE TEMP</label>
+                            <div class="gauge-bar">
+                                <div id="r-eng-temp-bar" class="gauge-fill"></div>
+                            </div>
+                            <span id="r-eng-temp">68°C</span>
+                        </div>
+                        <div class="system-gauge">
+                            <label>FUEL QUANTITY</label>
+                            <div class="gauge-bar">
+                                <div id="fuel-bar" class="gauge-fill" style="width: 85%;"></div>
+                            </div>
+                            <span id="fuel-qty">8500 LBS</span>
+                        </div>
+                        <div class="system-status">
+                            <div id="eng-status-l">L ENG: <span class="status-value">NORMAL</span></div>
+                            <div id="eng-status-r">R ENG: <span class="status-value">NORMAL</span></div>
+                        </div>
+                    </div>
+                    <div class="mfd-content hidden" id="mfd-weapons">
+                        <div class="weapons-display">
+                            <div class="weapon-item">
+                                <span>GUN</span>
+                                <span id="gun-ammo" class="ammo">500</span>
+                            </div>
+                            <div class="weapon-item">
+                                <span>AIM-9 SIDEWINDER</span>
+                                <span id="missile-count" class="ammo">2</span>
+                            </div>
+                            <div class="weapon-item">
+                                <span>AIM-120 AMRAAM</span>
+                                <span id="amraam-count" class="ammo">4</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mfd-content hidden" id="mfd-nav">
+                        <div class="nav-display">
+                            <div>HEADING: <span id="nav-heading">045°</span></div>
+                            <div>ALTITUDE: <span id="nav-altitude">15000 FT</span></div>
+                            <div>SPEED: <span id="nav-speed">280 KNOTS</span></div>
+                            <div>DISTANCE: <span id="nav-distance">0 NM</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL -->
+            <div class="panel right-panel">
+                <div class="panel-section">
+                    <h3>WEAPONS PANEL</h3>
+                    <div class="control-group">
+                        <label>MASTER ARM</label>
+                        <button class="toggle-btn" id="master-arm-btn" data-state="SAFE">SAFE</button>
+                    </div>
+                    <div class="control-group">
+                        <label>WEAPON SELECT</label>
+                        <div class="button-group">
+                            <button class="select-btn active" id="gun-select">GUN</button>
+                            <button class="select-btn" id="missile-select">MISSILE</button>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <button class="fire-btn" id="fire-btn">FIRE</button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>COUNTERMEASURES</h3>
+                    <div class="control-group">
+                        <label>MODE</label>
+                        <div class="button-group">
+                            <button class="select-btn active" id="cm-manual">MANUAL</button>
+                            <button class="select-btn" id="cm-auto">AUTO</button>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <button class="dispense-btn" id="chaff-btn">CHAFF</button>
+                    </div>
+                    <div class="control-group">
+                        <button class="dispense-btn" id="flare-btn">FLARE</button>
+                    </div>
+                    <div class="cm-status">
+                        <div>CHAFF: <span id="chaff-qty">120</span></div>
+                        <div>FLARE: <span id="flare-qty">60</span></div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>RWR DISPLAY</h3>
+                    <canvas id="rwr-canvas" width="200" height="200"></canvas>
+                    <div class="rwr-status" id="rwr-status">READY</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM WARNING PANEL -->
+        <div class="warning-panel">
+            <div class="warning-item">
+                <span class="warning-label">CAUTION</span>
+                <div id="caution-display" class="caution-text">SYSTEMS NOMINAL</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUDIO ELEMENTS -->
+    <audio id="audio-rwr" preload="auto"></audio>
+    <audio id="audio-engine" preload="auto"></audio>
+    <audio id="audio-warning" preload="auto"></audio>
+
+    <script src="audio-engine.js"></script>
+    <script src="flight-model.js"></script>
+    <script src="avionics.js"></script>
+    <script src="systems.js"></script>
+    <script src="ui-controller.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
